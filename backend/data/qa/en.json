@@ -1,0 +1,7 @@
+[
+  {"q": "How can I book a limo?", "a": "Choose your event, pick a package, pay. Done."},
+  {"q": "Is the price per hour?", "a": "Packages are fixed-price; extras by hour."},
+  {"q": "Can I cancel?", "a": "Yes, up to 24 h before. Premium allows 12 h."},
+  {"q": "Do you accept Bitcoin?", "a": "Currently we accept PayPal and Mercado Pago."},
+  {"q": "Is driver tip included?", "a": "Yes, standard gratuity is included in the package price."}
+]

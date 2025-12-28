@@ -1,0 +1,7 @@
+[
+  {"q": "¿Cómo puedo reservar una limusina?", "a": "Elige tu evento, selecciona un paquete y paga. Listo."},
+  {"q": "¿El precio es por hora?", "a": "Los paquetes son precio fijo; extras por hora."},
+  {"q": "¿Puedo cancelar?", "a": "Sí, hasta 24h antes. El paquete Premium permite 12h."},
+  {"q": "¿Aceptan Bitcoin?", "a": "Actualmente aceptamos PayPal y Mercado Pago."},
+  {"q": "¿La propina del chofer está incluida?", "a": "Sí, la propina estándar está incluida en el precio."}
+]
