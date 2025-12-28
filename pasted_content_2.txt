@@ -1,0 +1,152 @@
+PROYECTO: NEXORS - Comprehensive Metrics & KPI Dashboard
+ROL: Chief Analytics Officer
+
+GENERA (SIN CÓDIGO):
+
+1. NORTH STAR METRIC
+
+NORTH STAR: Monthly Booked Gross Merchandise Value (GMV)
+- Definition: Total value of all rides booked (passenger fees + commission to drivers)
+- Why: Indicates platform health and growth
+- Target Month 1: $10k
+- Target Month 3: $100k
+- Target Month 6: $500k
+- Target Month 12: $2.5M
+
+2. CORE METRICS (Dashboard)
+
+USER METRICS:
+- Total users: 50 (day 1) → 10,000 (month 12)
+- Daily active users (DAU): Track daily
+- Weekly active users (WAU): Track weekly
+- Monthly active users (MAU): Track monthly
+- New users per day: Target 50/day by month 3
+- User retention: Day 1, 7, 30 (target: 50%, 30%, 15%)
+
+RIDE METRICS:
+- Total rides completed: Track daily
+- Rides per active user: Target 2.5 rides/month by month 3
+- Average ride value: Track (will increase as premium features adopted)
+- Ride completion rate: Target >95%
+- Cancellation rate: Target <5%
+- No-show rate: Target <2%
+
+PAYMENT METRICS:
+- Payment success rate: Target >98%
+- Average transaction value: Track
+- Chargeback rate: Target <0.5%
+- Refund rate: Target <2%
+- Payment methods: % PayPal vs % Mercado Pago
+
+QUALITY METRICS:
+- Average driver rating: Target >4.5/5
+- Average ride rating: Track (quality indicator)
+- Support tickets per 1000 rides: Target <5
+- Issue resolution time: Target <2 hours
+
+BUSINESS METRICS:
+- Monthly recurring revenue (MRR): SaaS subscriptions
+- Booking commission: 12-18% of ride value
+- Total monthly revenue: MRR + commission
+- Customer acquisition cost (CAC): How much to get 1 customer
+- Lifetime value (LTV): How much customer worth over lifetime
+- LTV/CAC ratio: Target >3
+- Churn rate: Target <5% monthly
+- Net revenue retention: Target >110%
+
+OPERATIONAL METRICS:
+- API response time: Target <200ms p95
+- Platform uptime: Target >99.5%
+- Error rate: Target <0.5%
+- Database query time: Target <50ms p95
+
+3. SEGMENTATION
+
+By user type:
+- Passengers (consumer)
+- Drivers
+- Fleet managers
+- Corporate accounts
+
+By geography:
+- USA
+- Mexico
+- Brazil
+- Europe
+- Other
+
+By vertical:
+- Corporate (airport runs)
+- Events (weddings, XV años)
+- B2B (fleets, logistics)
+- Tourism (experiences)
+
+By ride type:
+- Sedan
+- SUV
+- Limousine
+- Party bus
+
+4. COHORT ANALYSIS
+
+Weekly cohorts:
+- Week 1 (launch) cohort: How many are still active week 4, 8, 12?
+- Week 2 cohort: Retention comparison
+- Track: If later cohorts have better retention → good product improvements
+
+5. FUNNEL ANALYSIS
+
+Landing → Signup → First booking → Payment → Rating
+- Landing: 1000 visitors
+- Signup: 100 (10% conversion) ← If <10%, landing/copy issue
+- First booking: 30 (30% of signups) ← If <30%, onboarding issue
+- Payment: 25 (83% of bookings) ← If <80%, payment issue
+- Rating: 24 (96% completed) ← If <90%, UX issue
+
+6. A/B TESTING ROADMAP
+
+Week 1:
+- Test 1: Landing page CTA button color (blue vs green)
+- Metric: Click-through rate
+- Expected winner: Blue (based on psychology)
+
+Week 2:
+- Test 2: Pricing page: 3 plans vs 2 plans
+- Metric: Conversion to signup
+- Expected: 3 plans wins (choice)
+
+Week 3:
+- Test 3: Signup form: Email only vs Email + phone
+- Metric: Signup completion rate
+- Expected: Email only wins (friction)
+
+Month 2:
+- Test 4: Booking flow: 3 steps vs 5 steps
+- Metric: Booking completion rate
+- Expected: 3 steps wins (simpler)
+
+7. REVENUE ANALYTICS
+
+Breakdown by source:
+- SaaS subscription revenue: $X
+- Booking commission: $Y
+- Premium features: $Z
+- Total MRR: $X + $Y + $Z
+
+Breakdown by customer segment:
+- Corporate: $X per customer
+- Events: $Y per customer
+- B2B fleets: $Z per customer
+- Consumers: $W per customer
+
+Which segment most profitable?
+
+8. PREDICTIVE ANALYTICS (Future)
+
+Month 3+:
+- Churn prediction: Which customers likely to leave?
+- LTV prediction: Which customers worth most?
+- Price elasticity: If we raise price 10%, how many fewer bookings?
+- Demand forecasting: Predict rides needed per hour/day
+
+TODO para saber exactamente qué está pasando.

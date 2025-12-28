@@ -1,0 +1,495 @@
+  - Función: geocodeLatLng(lat, lng) → dirección texto
+
+- components/Map.tsx (componente mapa interactivo)
+  - @googlemaps/js-api-loader (importa dinamicamente)
+  - Muestra origen + destino
+  - Dibuja ruta optimizada
+  - Responsive, fullscreen option
+
+- components/LocationSearch.tsx (búsqueda de lugares)
+  - Input con debounce (300ms)
+  - Dropdown con sugerencias
+  - Validación de coords válidas
+  - UX: ícono de ubicación actual
+
+TAREA 2.2: Lógica de Pricing Dinámico
+Genera:
+- lib/pricing/calculator.ts
+  - Función: calculatePrice(origin, destination, vehicleType, currency)
+  - Base fee: $5-10 según vehículo
+  - Per-km: $1-3 según demanda (si es peak hours: +20%)
+  - Surge pricing: si >5 rides simultáneos en zona: +30%
+  - Currency conversion (USD → MXN, BRL, EUR automático)
+  - Ejemplo output: { basePrice: 15, distance: 8.5km, duration: 22min, total: $42.50, surge: false }
+
+- lib/pricing/demandData.ts (simula demanda en tiempo real)
+  - Hot zones por hora del día
+  - Surge multipliers
+  - Vacaciones/fines de semana
+
+TAREA 2.3: Página de Booking
+Genera:
+- app/book/page.tsx (flujo de booking)
+  - Step 1: Pick-up location (LocationSearch)
+  - Step 2: Drop-off location (LocationSearch)
+  - Step 3: Vehicle selection (4 opciones: sedan, SUV, limo, party bus)
+  - Step 4: Mapa preview (muestra ruta + distancia + tiempo estimado)
+  - Step 5: Pricing breakdown (desglose de costos)
+  - Step 6: Confirmación (botón "Book Now")
+  - Estado: draft ride guardado en Supabase (rides table, status='pending_payment')
+
+- components/VehicleSelector.tsx
+  - 4 cards: Sedan (4 pass), SUV (6 pass), Limousine (8 pass), Party Bus (12 pass)
+  - Cada uno muestra precio, capacidad, amenidades
+  - Imagen del vehículo
+  - Select radio button
+
+- hooks/useBooking.ts (estado del booking)
+  - Zustand store para manejar estado
+  - origen, destino, tipo vehículo, precio estimado, etc
+
+TAREA 2.4: API de Estimación
+Genera:
+- app/api/rides/estimate.ts (POST endpoint)
+  - Input: { origin: {lat, lng}, destination: {lat, lng}, vehicleType: string }
+  - Output: { distance: number, duration: number, basePrice: number, surgeMultiplier: number, totalPrice: number }
+  - Calcula usando Google Maps Distance Matrix API
+  - Aplica surge pricing
+  - Retorna en diferentes monedas según usuario
+  - Error handling (ubicaciones inválidas, fuera de zona, etc)
+
+=============================================================================
+FASE 3: SISTEMA DE PAGOS (HORAS 16-24)
+=============================================================================
+
+TAREA 3.1: Integración PayPal
+Genera:
+- lib/payments/paypal.ts
+  - Función: createOrder(amount, currency) → orderId
+  - Función: capturePayment(orderId) → confirmación
+  - Función: refund(transactionId, amount) → reembolso
+  - Error handling (network, timeout, cancellation)
+
+- app/api/payments/paypal/create-order.ts (POST)
+  - Input: { rideId, amount, currency }
+  - Output: { id: orderId, status, links }
+  - Guarda pending payment en Supabase
+
+- app/api/payments/paypal/capture.ts (POST)
+  - Input: { orderId, rideId }
+  - Output: { status: 'COMPLETED', transactionId }
+  - Actualiza ride a status='confirmed'
+  - Envía SMS a driver + pasajero
+
+- components/PayPalButton.tsx (botón de checkout)
+  - Integración PayPal SDK
+  - Maneja crear orden + captura
+  - Spinner mientras procesa
+  - Errores amigables
+
+TAREA 3.2: Integración Mercado Pago
+Genera:
+- lib/payments/mercadopago.ts
+  - Función: createPreference(rideId, amount, currency)
+  - Función: verifyPayment(paymentId) → status confirmación
+  - Mercado Pago es más usado en Latam (Mexico, Brasil, Argentina)
+
+- app/api/payments/mercadopago/create-preference.ts (POST)
+  - Input: { rideId, amount, currency }
+  - Output: { init_point: checkoutURL }
+
+- app/api/payments/mercadopago/webhook.ts (POST)
+  - Recibe notificación de Mercado Pago
+  - Verifica firma digital
+  - Actualiza ride.status
+  - Envía confirmación
+
+TAREA 3.3: Dashboard de Transacciones
+Genera:
+- app/dashboard/payments/page.tsx
+  - Tabla de últimos 10 pagos
+  - Columnas: Ride ID, Monto, Método (PayPal/Mercado Pago), Status, Timestamp
+  - Filtros: Fecha, Método, Status
+  - Export CSV button
+
+TAREA 3.4: Webhook Security
+Genera:
+- lib/payments/webhooks.ts
+  - Función: verifyPayPalSignature(headers, body) → boolean
+  - Función: verifyMercadoPagoSignature(headers, body) → boolean
+  - Rate limiting (máx 100 webhooks/min)
+  - Logging de intentos fraudulentos
+
+=============================================================================
+FASE 4: TRACKING EN TIEMPO REAL (HORAS 24-32)
+=============================================================================
+
+TAREA 4.1: Sistema de Real-time Tracking
+Genera:
+- lib/realtime/locationUpdates.ts
+  - Supabase Realtime subscriptions
+  - Función: subscribeToRideUpdates(rideId) → Observable
+  - Actualiza ubicación driver cada 5 segundos
+  - Calcula ETA dinámicamente
+
+- components/RideTracking.tsx
+  - Mapa en vivo con ubicación driver
+  - Ubicación pasajero (pickup point)
+  - Destino (drop-off point)
+  - ETA en tiempo real
+  - Botón de emergencia
+  - Share ride code (para otro pasajero ver tracking)
+
+- app/rides/[id]/tracking/page.tsx
+  - Full-screen tracking
+  - Info del driver (nombre, foto, rating)
+  - Info del vehículo (placa, modelo)
+  - Botón "Contactar driver"
+
+TAREA 4.2: GPS Updates from Driver
+Genera:
+- app/api/drivers/location/update.ts (POST)
+  - Input: { driverId, lat, lng, accuracy, speed }
+  - Actualiza drivers table (location_geom)
+  - Broadcast via Supabase Realtime
+  - Solo acepta si driver está "en viaje"
+  - Validación: ubicación dentro de país
+
+- components/DriverApp.tsx (para choferes)
+  - Botón ON/OFF availability
+  - Mapa mostrando zona de servicio
+  - Inicia tracking GPS cuando acepta viaje
+  - Notificaciones de nuevos viajes (push)
+
+TAREA 4.3: Cálculo de ETA
+Genera:
+- lib/maps/etaCalculation.ts
+  - Función: calculateETA(driverLocation, destination, trafficData)
+  - Usa Google Maps Directions API (incluye tráfico en tiempo real)
+  - Actualiza cada 10 segundos
+  - Cuenta minutos restantes
+
+=============================================================================
+FASE 5: CHAT Y RATING (HORAS 32-40)
+=============================================================================
+
+TAREA 5.1: Chat Pasajero ↔️ Driver
+Genera:
+- lib/realtime/messaging.ts
+  - Supabase Realtime para mensajes en vivo
+  - Función: sendMessage(rideId, senderId, message)
+  - Función: subscribeToMessages(rideId)
+  - Encryption de mensajes (opcional pero recomendado)
+
+- components/RideChat.tsx
+  - Input para escribir mensaje
+  - Lista de mensajes (scroll automático al final)
+  - Timestamps
+  - Indicador "typing..."
+  - Emojis básicos
+
+- app/api/messages/send.ts (POST)
+  - Input: { rideId, userId, message }
+  - Valida que user es part de ride
+  - Guarda en messages table
+  - Broadcast via Realtime
+  - Limpia chats después de 30 días
+
+TAREA 5.2: Sistema de Rating
+Genera:
+- app/rides/[id]/rating/page.tsx (post-ride rating)
+  - Star rating (1-5)
+  - Textarea para comentario
+  - Checkboxes: "Great driver", "Clean car", "Good music", etc
+  - Botón "Submit"
+
+- app/api/rides/[id]/rate.ts (POST)
+  - Input: { rideId, rating: 1-5, comment, tags }
+  - Valida que ride.status = 'completed'
+  - Actualiza drivers table (avg_rating)
+  - Guarda en ratings table
+  - Si rating < 3: flag para support team
+
+- components/DriverProfile.tsx
+  - Muestra rating promedio (⭐4.8)
+  - Últimos 5 comentarios
+  - Foto del driver
+  - Número de viajes (1,234 trips)
+
+=============================================================================
+FASE 6: DASHBOARD PASAJERO (HORAS 40-44)
+=============================================================================
+
+TAREA 6.1: Dashboard Principal
+Genera:
+- app/dashboard/page.tsx
+  - Welcome message personalizado (Hello, {firstName}!)
+  - Última ubicación guardada (pick favorite locations)
+  - Quick action buttons: "Book Now", "Scheduled Rides", "Wallet"
+  - Viajes recientes (últimos 3)
+  - Promociones activas (banners)
+
+TAREA 6.2: Historial de Viajes
+Genera:
+- app/dashboard/rides/page.tsx
+  - Tabla de todos los viajes (paginada, 10 por página)
+  - Columnas: Fecha, Hora, Origen → Destino, Vehículo, Costo, Rating
+  - Filtros: Fecha rango, Vehículo, Costo
+  - Botón "View details" para cada viaje
+  - Botón "Replicar" (auto-rellena origen/destino)
+
+TAREA 6.3: Método de Pago
+Genera:
+- app/dashboard/payment-methods/page.tsx
+  - Lista de métodos guardados (PayPal, Mercado Pago, Transferencia)
+  - Opción agregar nuevo método
+  - Opción "default payment method"
+  - Historial de transacciones
+
+TAREA 6.4: Preferencias
+Genera:
+- app/dashboard/settings/page.tsx
+  - Idioma (dropdown 20 idiomas)
+  - Moneda preferida
+  - Notificaciones (email, SMS, push)
+  - Perfil (nombre, foto, teléfono)
+  - Privacidad
+
+=============================================================================
+FASE 7: DASHBOARD GESTOR DE FLOTILLA (HORAS 44-48)
+=============================================================================
+
+TAREA 7.1: Dashboard Principal Flotilla
+Genera:
+- app/dashboard/fleet/page.tsx
+  - KPIs: Total viajes hoy, Ingresos hoy, Autos en línea, Rating promedio
+  - Mapa mostrando todos los autos en tiempo real
+  - Lista de viajes activos (tabla)
+  - Próximos 5 viajes programados
+
+TAREA 7.2: Gestión de Vehículos
+Genera:
+- app/dashboard/fleet/vehicles/page.tsx
+  - Tabla con todos los autos: Placa, Modelo, Año, Estado (online/offline), Último viaje
+  - Botones: Edit, Delete, View
+  - Agregar vehículo (form: placa, modelo, año, foto, capacidad, tipo)
+  - Filtros: Estado, Tipo
+
+- app/dashboard/fleet/vehicles/[id]/page.tsx (detalles vehículo)
+  - Foto + info general
+  - Ubicación actual
+  - Viajes hoy
+  - Historial mantenimiento
+  - Alertas (ej: próximo service en 500 km)
+
+TAREA 7.3: Gestión de Choferes
+Genera:
+- app/dashboard/fleet/drivers/page.tsx
+  - Tabla: Nombre, Teléfono, Licencia, Rating, Viajes hoy, Estado
+  - Agregar chofer (form: nombre, email, teléfono, licencia_num)
+  - Asignar vehículo a chofer (drag-drop o select dropdown)
+  - Ver historial de viajes
+
+TAREA 7.4: Analytics & Reportes
+Genera:
+- app/dashboard/fleet/analytics/page.tsx
+  - Gráfico de viajes por día (últimos 30 días)
+  - Gráfico de ingresos por día
+  - Ocupación promedio (%)
+  - Rating promedio (⭐)
+  - Horas pico (cuándo más viajes)
+  - Botón "Export PDF" (genera reporte mensual)
+
+=============================================================================
+REQUISITOS TRANSVERSALES (Aplicar a TODO)
+=============================================================================
+
+SEGURIDAD:
+- ✅ HTTPS everywhere
+- ✅ Rate limiting en todas las APIs (100 req/min por IP)
+- ✅ CORS configurado (solo dominios autorizados)
+- ✅ SQL injection protection (queries parametrizadas)
+- ✅ Input validation en todas las formas
+- ✅ Datos sensibles encriptados (números de tarjeta = nunca se guardan, PayPal/Mercado Pago manejan)
+- ✅ Logging de intentos fallidos (malicious activity)
+
+PERFORMANCE:
+- ✅ Image optimization (next/image)
+- ✅ Code splitting (lazy loading de rutas)
+- ✅ Caching (Cloudflare cache headers)
+- ✅ Database queries optimizadas (indexes en columnas frecuentes)
+- ✅ API responses < 200ms (target)
+- ✅ Bundle size < 200KB (initial load)
+
+ACCESIBILIDAD:
+- ✅ ARIA labels en botones/inputs
+- ✅ Keyboard navigation (Tab, Enter, Escape)
+- ✅ Focus indicators visibles
+- ✅ Alt text en imágenes
+- ✅ Color contrast > 4.5:1
+- ✅ Mobile responsive (< 480px, 480-1024px, > 1024px breakpoints)
+
+TESTING:
+- ✅ Unit tests (Jest) para funciones críticas: calculatePrice, verifyPayment, getETA
+- ✅ Integration tests (Cypress) para flows principales: Book ride, Make payment, Rate
+- ✅ Error scenarios: Invalid location, Payment failure, Network timeout
+- ✅ Cobertura mínima: 70%
+
+MONITOREO:
+- ✅ Sentry (error tracking)
+- ✅ Google Analytics (user behavior)
+- ✅ Custom logging (rides, payments, errors)
+- ✅ Database monitoring (query performance)
+
+=============================================================================
+ESTRUCTURA DE CARPETAS (Genérala también)
+=============================================================================
+
+NEXORS/
+├── app/
+│   ├── (auth)/
+│   │   ├── login/page.tsx
+│   │   ├── register/page.tsx
+│   │   └── reset-password/page.tsx
+│   ├── (app)/
+│   │   ├── dashboard/
+│   │   │   ├── page.tsx
+│   │   │   ├── rides/page.tsx
+│   │   │   ├── payment-methods/page.tsx
+│   │   │   ├── settings/page.tsx
+│   │   │   ├── fleet/
+│   │   │   │   ├── page.tsx
+│   │   │   │   ├── vehicles/page.tsx
+│   │   │   │   ├── drivers/page.tsx
+│   │   │   │   └── analytics/page.tsx
+│   │   ├── book/page.tsx
+│   │   ├── rides/[id]/tracking/page.tsx
+│   │   ├── rides/[id]/rating/page.tsx
+│   ├── api/
+│   │   ├── rides/
+│   │   │   ├── estimate.ts
+│   │   │   └── [id]/rate.ts
+│   │   ├── payments/
+│   │   │   ├── paypal/create-order.ts
+│   │   │   ├── paypal/capture.ts
+│   │   │   ├── mercadopago/create-preference.ts
+│   │   │   └── mercadopago/webhook.ts
+│   │   ├── drivers/location/update.ts
+│   │   └── messages/send.ts
+│   ├── page.tsx (landing)
+│   └── layout.tsx
+├── components/
+│   ├── Map.tsx
+│   ├── LocationSearch.tsx
+│   ├── VehicleSelector.tsx
+│   ├── RideTracking.tsx
+│   ├── RideChat.tsx
+│   ├── PayPalButton.tsx
+│   ├── DriverProfile.tsx
+│   └── (otros componentes reutilizables)
+├── lib/
+│   ├── auth/
+│   │   ├── client.ts
+│   │   └── middleware.ts
+│   ├── maps/
+│   │   ├── googleMaps.ts
+│   │   └── etaCalculation.ts
+│   ├── pricing/
+│   │   ├── calculator.ts
+│   │   └── demandData.ts
+│   ├── payments/
+│   │   ├── paypal.ts
+│   │   ├── mercadopago.ts
+│   │   └── webhooks.ts
+│   ├── realtime/
+│   │   ├── locationUpdates.ts
+│   │   └── messaging.ts
+│   └── supabase.ts (cliente)
+├── hooks/
+│   ├── useAuth.ts
+│   └── useBooking.ts
+├── styles/
+│   ├── globals.css
+│   └── colors.css (variables Tailwind)
+├── public/
+│   ├── logo.svg
+│   └── favicon.ico
+├── .env.local (variables de entorno)
+├── package.json
+├── tsconfig.json
+├── next.config.js
+├── tailwind.config.ts
+└── README.md
+
+=============================================================================
+CRITERIOS DE ACEPTACIÓN (QA CHECKLIST)
+=============================================================================
+
+Landing Page:
+- [ ] Carga en < 2 segundos
+- [ ] Funciona en móvil, tablet, desktop
+- [ ] Todos los links funcionan
+- [ ] CTA buttons clickeables
+- [ ] 20 idiomas disponibles (dropdown funcional)
+
+Auth:
+- [ ] Sign up valida email
+- [ ] Google/Apple OAuth funciona
+- [ ] Password reset envía email
+- [ ] Session persiste en reload
+- [ ] Rutas protegidas redirigen a login
+
+Booking:
+- [ ] Google Places autocomplete funciona
+- [ ] Mapa dibuja ruta correctamente
+- [ ] Precio se calcula dinámicamente
+- [ ] Peak pricing se aplica (if >5 rides)
+- [ ] Ride se guarda en Supabase
+
+Pagos:
+- [ ] PayPal checkout completo
+- [ ] Mercado Pago checkout completo
+- [ ] Confirmación de pago actualiza ride.status
+- [ ] SMS/Email de confirmación enviado
+
+Tracking:
+- [ ] Ubicación driver se actualiza en vivo
+- [ ] ETA recalculable cada 10 seg
+- [ ] Mapa muestra origen/destino/driver
+
+Rating:
+- [ ] Star rating funciona
+- [ ] Rating se guarda en database
+- [ ] Driver rating promedio actualizado
+
+Dashboard:
+- [ ] Tabla de viajes carga
+- [ ] Filtros funcionan
+- [ ] Analytics gráficos visibles
+- [ ] PDF export funciona
+
+=============================================================================
+INSTRUCCIONES ESPECÍFICAS PARA KIMI 2
+=============================================================================
+
+ORDEN DE EJECUCIÓN:
+1. Lee TODO este documento de arriba a abajo (toma 5 min)
+2. Haz preguntas si algo no está claro
+3. GENERA en bloques de 2-3 tareas por mensaje (no todo de una vez)
+4. Cada bloque incluye: componentes + funciones + tests
+5. Commit a GitHub después de cada bloque completado
+6. Reporta cualquier bloqueador (ej: API key missing)
+
+ESTÁNDARES DE CÓDIGO:
+- TypeScript estricto (no any)
+- Componentes funcionales (React 19+)
+- Hooks (no class components)
+- Naming: camelCase para variables, PascalCase para componentes
+- Comments: En español, explicar PORQUÉ no QUÉ
+- Error handling: Try/catch + user-friendly messages
+- Logging: console.error para bugs, console.log solo en desarrollo
+
+GIT WORKFLOW:
+- rama: main
+- Cada tarea = 1 commit
+(Content truncated due to size limit. Use page ranges or line ranges to read remaining content)

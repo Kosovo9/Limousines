@@ -1,0 +1,164 @@
+PROYECTO: NEXORS - Comprehensive Risk Register & Contingency Plans
+ROL: Chief Risk Officer
+
+GENERA (SIN CÓDIGO):
+
+1. RISK REGISTER (Top 20 risks)
+
+RISK 1: Payment system failure (HIGH)
+- Impact: Revenue stops, users angry
+- Probability: Medium (vendors have issues occasionally)
+- Mitigation: Dual payment providers (PayPal + Mercado Pago), fallback to manual
+- Contingency: SMS-based payment confirmation, send invoice for manual payment
+
+RISK 2: Regulatory shutdown (HIGH)
+- Impact: Can't operate in country
+- Probability: Low (regulatory approval takes time)
+- Mitigation: Consult with lawyers early, stay compliant, maintain relationships
+- Contingency: Pivot to adjacent market, restructure as marketplace (not carrier)
+
+RISK 3: Data breach (HIGH)
+- Impact: Customer data stolen, GDPR fines, reputation damage
+- Probability: Low (but consequences severe)
+- Mitigation: Encryption, security audits, penetration testing, insurance
+- Contingency: Breach notification plan, customer compensation, PR response
+
+RISK 4: Key person departure (MEDIUM)
+- Impact: Loss of critical function
+- Probability: Low (but startup risk)
+- Mitigation: Documentation, cross-training, equity with vesting
+- Contingency: Immediate hiring, interim contractor
+
+RISK 5: Massive churn (MEDIUM)
+- Impact: MRR drops, cash crisis
+- Probability: Medium (if product issues)
+- Mitigation: Product quality, customer success team, retention programs
+- Contingency: Discount to win-back, pivot product based on feedback
+
+RISK 6: Competitors undercut pricing (MEDIUM)
+- Impact: Lose customers to lower-cost options
+- Probability: High (inevitable)
+- Mitigation: Not compete on price, compete on value/specialization
+- Contingency: Improve product, increase switching costs (integrations, data)
+
+RISK 7: Server outage / Platform down (MEDIUM)
+- Impact: Users can't book, payments fail, reputation damage
+- Probability: Low (with proper infrastructure)
+- Mitigation: Redundancy, monitoring, auto-scaling, backups
+- Contingency: Automatic failover, manual override, customer notification
+
+RISK 8: Unable to raise Series A (MEDIUM)
+- Impact: Runway runs out, need to shutdown
+- Probability: Low (if early traction good)
+- Mitigation: Hit metrics, build narrative, prepare pitch deck, network with VCs
+- Contingency: Raise via angels, bootstrap (lower burn), raise acquihire
+
+RISK 9: Product-market fit doesn't happen (MEDIUM)
+- Impact: Can't grow, burn rate unsustainable
+- Probability: Medium (startup risk)
+- Mitigation: Iterate fast, listen to customers, be ready to pivot
+- Contingency: Pivot to adjacent market, merge with competitor
+
+RISK 10: Fraud/bad actors (MEDIUM)
+- Impact: Fake bookings, refund fraud, money loss
+- Probability: Medium (payment fraud is common)
+- Mitigation: KYC, verification, fraud detection, insurance
+- Contingency: Freeze suspicious accounts, investigate, refund victims
+
+RISK 11: Accident/liability (HIGH)
+- Impact: Passenger or driver injured, lawsuit, insurance claims
+- Probability: Low (but happens in transportation)
+- Mitigation: Insurance, screening drivers, safety guidelines, waivers
+- Contingency: Insurance covers, legal defense, transparency with regulators
+
+RISK 12: Driver shortage (MEDIUM)
+- Impact: Can't fulfill rides, low availability
+- Probability: Medium (especially peaks)
+- Mitigation: Good driver experience, fair pay, incentives, training
+- Contingency: Surge pricing, partner with taxi services, use contractors
+
+RISK 13: Passenger disputes (MEDIUM)
+- Impact: Chargebacks, refunds, support burden
+- Probability: Medium (common in payment disputes)
+- Mitigation: Clear terms, good UX, rating system, dispute process
+- Contingency: Mediation, refund policy, learn from patterns
+
+RISK 14: Vendor lock-in (LOW)
+- Impact: Stuck with vendor, high switching costs
+- Probability: Low (but long-term risk)
+- Mitigation: Use standard APIs, avoid proprietary tech, maintain backups
+- Contingency: Migrate to alternative vendor if needed (expensive but possible)
+
+RISK 15: Scaling too fast (MEDIUM)
+- Impact: Quality suffers, churn increases, costs explode
+- Probability: Medium (common startup mistake)
+- Mitigation: Deliberate scaling, metrics-driven, hiring quality > speed
+- Contingency: Pause growth, fix issues, resume when ready
+
+RISK 16: Market saturation (LOW)
+- Impact: Market matures, margins compress
+- Probability: Low (Year 5+ risk)
+- Mitigation: Build moats, expand geographically, add new verticals
+- Contingency: Consolidate market position, look for acquisition
+
+RISK 17: Economic recession (MEDIUM)
+- Impact: Customers cut budgets, fewer bookings
+- Probability: Medium (macro risk beyond control)
+- Mitigation: Diversify customer base, build value-focused tier, cost leadership
+- Contingency: Pivot to essential services (airport, medical), cut costs
+
+RISK 18: Technology obsolescence (LOW)
+- Impact: Stack becomes outdated, expensive to maintain
+- Probability: Low (with modern stack)
+- Mitigation: Use modern, maintained technologies, regular updates
+- Contingency: Refactor to new stack (expensive, multi-month project)
+
+RISK 19: Loss of key accounts (MEDIUM)
+- Impact: MRR drops 30%+, cash crisis
+- Probability: Low (if good CS team)
+- Mitigation: Diversified customer base, account management, retention programs
+- Contingency: Win-back campaigns, lower pricing short-term, find replacement revenue
+
+RISK 20: Cyber attack (MEDIUM)
+- Impact: Data compromised, systems down, reputation damage
+- Probability: Low (with security measures)
+- Mitigation: Firewalls, DDoS protection, security scanning, incident response
+- Contingency: Incident response team activated, customer notification, forensics
+
+2. RISK DASHBOARD
+
+Track weekly:
+- Payment success rate
+- API uptime
+- Customer churn rate
+- Support ticket volume
+- Driver availability
+- Chargebacks
+- Security incidents
+
+Red alert if:
+- Payment success < 95%
+- Uptime < 99%
+- Churn > 10% monthly
+- Chargebacks > 1%
+- Any security incident
+
+3. INSURANCE NEEDS
+
+- General liability: $1M minimum
+- Professional liability: $1M
+- Cyber liability: $1M
+- Directors & officers: $2M (when raise capital)
+- Vehicle/commercial auto: If you own vehicles
+
+Cost: ~$500-2000/month depending on coverage
+
+4. LEGAL CONTINGENCIES
+
+- Contract templates: ToS, Privacy, Disputes
+- Lawyer on retainer ($2k-5k/month)
+- Escalation path: When to call lawyer
+- Insurance broker: Manages policies
+- Accountant: For tax, compliance
+
+TODO para estar preparado para crisis.

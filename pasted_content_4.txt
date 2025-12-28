@@ -1,0 +1,184 @@
+PROYECTO: NEXORS - Long-term Vision, Sustainability & Impact (Years 3-10)
+ROL: Founder + CEO
+
+GENERA (SIN CÓDIGO):
+
+1. 5-YEAR VISION
+
+YEAR 1 (MVP & Traction):
+- Launch MVP
+- 20-50 customers
+- $100k-500k revenue
+- Achieve product-market fit
+- Raise Series A
+
+YEAR 2 (Expansion):
+- Expand to 3-4 new countries
+- 500-1000 customers
+- $2-5M revenue
+- Profitability on horizon
+- Build team (20-30 people)
+
+YEAR 3 (Dominance):
+- Leading platform in 3+ countries
+- 5000+ customers
+- $20-30M revenue
+- Profit margins 30%+
+- Prepare Series B
+
+YEAR 4-5 (Global):
+- Operating in 10+ countries
+- 50k+ customers
+- $100M+ revenue
+- Expand to new verticals (healthcare transport, employee shuttles)
+- Consider acquisition offers OR prepare for IPO
+
+2. COMPETITIVE MOATS (Why NEXORS lasts forever)
+
+DATA MOAT:
+- Every ride = data point (origin, destination, time, driver, rating)
+- More data = better pricing algorithm
+- Better pricing = more customers
+- Virtuous cycle
+
+NETWORK MOAT:
+- More drivers = faster pickups = happier customers
+- More customers = more demand = more drivers
+- Self-reinforcing network
+
+BRAND MOAT:
+- If NEXORS becomes synonym for "trusted executive transportation"
+- Brand = switching cost (inertia)
+
+PRODUCT MOAT:
+- Specialized per vertical (not generic)
+- Deep integrations (API, CRM, accounting software)
+- Switching costs = high
+
+OPERATIONAL MOAT:
+- Better processes, better team
+- Competitors need years to build equivalent capability
+
+3. INTERNATIONAL EXPANSION ROADMAP
+
+Phase 1 (Year 1-2): English-speaking markets
+- USA (focus)
+- Canada
+- Australia
+- UK
+
+Phase 2 (Year 2-3): Hispanic markets
+- Mexico (focus)
+- Spain
+- Argentina
+- Colombia
+
+Phase 3 (Year 2-3): Portuguese
+- Brazil (focus)
+- Portugal
+
+Phase 4 (Year 3-4): European
+- Germany
+- France
+- Italy
+- Netherlands
+
+Phase 5 (Year 4-5): Asian
+- Singapore
+- Hong Kong
+- Japan
+- South Korea
+
+For each market:
+- Regulatory requirements
+- Local partnerships
+- Localization effort
+- Revenue potential
+
+4. NEW VERTICALS (Year 2+)
+
+Current verticals:
+- Corporate (airport runs)
+- Events (weddings, XV años)
+- B2B fleets
+- Tourism
+
+New verticals to explore:
+- Medical transport (hospital → home, patient transport)
+- Employee shuttles (company transport for workers)
+- Campus transport (universities)
+- Senior care (elderly transport services)
+- Disability services (ADA-compliant transport)
+- Movie/film crew transport
+- Sports teams (athlete transport)
+- Executive security (armored vehicles + security)
+
+5. SUSTAINABILITY & IMPACT
+
+Environmental:
+- Goal: 50% of fleet electric by Year 5
+- Carbon offset: Partner with carbon offset programs
+- Metric: Track emissions per ride, reduce 10% YoY
+
+Social:
+- Goal: 50% of drivers from underrepresented communities
+- Training programs: Free driving training for low-income drivers
+- Community: Partner with nonprofits
+
+Governance:
+- Diverse board (gender, race, background)
+- Transparent reporting (annual impact report)
+- Employee wellbeing: Remote-friendly, mental health support, equity
+
+6. ACQUISITION TARGETS & PARTNERSHIPS
+
+Potential acquirers (Year 5+):
+- Uber (integrate into Uber premium)
+- Booking.com (travel + transportation)
+- Google (mobility)
+- Chinese ride-share (expansion)
+- Valuation estimate: $500M-2B
+
+Partnerships:
+- Airlines (ground transportation)
+- Hotels (guest transport)
+- Insurance companies (bundled offerings)
+- Tech companies (API integrations)
+
+7. EXIT SCENARIOS
+
+Scenario 1: Acquisition
+- Most likely (Year 4-6)
+- Buyer: Mobility company, tech giant
+- Price: $500M-2B
+
+Scenario 2: IPO
+- Possible if scale large enough
+- Timeline: Year 7-10
+- Requirements: $200M+ revenue, profitable
+
+Scenario 3: Remain independent
+- Build long-term value
+- Dividend to founders/investors
+- Build generational business
+
+8. LONG-TERM IMPACT
+
+Vision:
+"NEXORS is the trusted global platform for specialized transportation.
+We enable 100k+ drivers to earn sustainable income.
+We serve 10M+ customers annually.
+We move $50B in commerce every year.
+We're the backbone of mobility for business & experiences."
+
+Mission:
+"Empower specialized transportation businesses with a platform
+that scales globally, serves locally, and improves lives."
+
+Values:
+- Trust (safe, reliable, transparent)
+- Specialization (do one thing, do it excellently)
+- Impact (drivers earn well, customers get great service)
+- Innovation (always improving)
+
+TODO para que NEXORS sea empresa de 100 años.
