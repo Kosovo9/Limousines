@@ -19,14 +19,32 @@ import aiRoutes from './routes/ai.js'
 import i18nRoutes from './routes/i18n.js'
 import { train as trainAI } from './ai/train.js'
 
-const redisClient = redis.createClient({ url: process.env.REDIS_URL })
-await redisClient.connect()
+import cors from 'cors' // Ensure this is installed
+import { createServer } from 'http' // For graceful shutdown
 
 const app = express()
+
+// Quantum Resilience: Redis Connection
+const redisClient = redis.createClient({ 
+  url: process.env.REDIS_URL,
+  socket: {
+    reconnectStrategy: (retries) => Math.min(retries * 50, 2000)
+  }
+})
+redisClient.on('error', (err) => console.error('Redis Client Error', err))
+await redisClient.connect().catch(console.error)
+
+// Quantum Security: CORS & Helmet
 app.use(helmet())
+app.use(cors({
+  origin: [process.env.FRONTEND_URL, 'http://localhost:5173', 'https://limousines-app.netlify.app'], 
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}))
 app.use(compression({ level: 11, brotli: { quality: 11 } }))
 app.use(express.json())
 
+// Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
@@ -35,19 +53,25 @@ const limiter = rateLimit({
 })
 app.use(limiter)
 
+// ... existing AVIF code ...
 // AVIF on‑the‑fly conversion & caching
 app.get('/img/:name', async (req, res, next) => {
   const key = `img:${req.params.name}`
-  const cached = await redisClient.getBuffer(key)
-  if (cached) return res.type('avif').send(cached)
-
-  const file = path.resolve('public', req.params.name.replace(/\..+/, '.jpg'))
   try {
+    if (redisClient.isOpen) {
+      const cached = await redisClient.getBuffer(key)
+      if (cached) return res.type('avif').send(cached)
+    }
+
+    const file = path.resolve('public', req.params.name.replace(/\..+/, '.jpg'))
     const avif = await sharp(file)
       .resize(1280, 720, { fit: 'inside' })
       .avif({ quality: 60, effort: 6 })
       .toBuffer()
-    await redisClient.setEx(key, 3600, avif)
+    
+    if (redisClient.isOpen) {
+      await redisClient.setEx(key, 3600, avif)
+    }
     res.type('avif').send(avif)
   } catch (e) {
     next()
@@ -72,5 +96,28 @@ app.get('/shell', (_req, res) => {
   res.sendFile(path.resolve('public', 'index.html'))
 })
 
-await mongoose.connect(process.env.MONGO_URI)
-app.listen(process.env.PORT || 5000, () => console.log('API 500% ready'))
+// Quantum Datastore: MongoDB
+try {
+  await mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000
+  })
+  console.log('✅ MongoDB Connected')
+} catch (err) {
+  console.error('❌ MongoDB Connection Error:', err.message)
+  process.exit(1)
+}
+
+const server = app.listen(process.env.PORT || 5000, () => console.log(`🚀 API 500% ready on port ${process.env.PORT || 5000}`))
+
+// Graceful Shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server')
+  server.close(() => {
+    console.log('HTTP server closed')
+    mongoose.connection.close(false, () => {
+      console.log('MongoDB connection closed')
+      redisClient.quit()
+      process.exit(0)
+    })
+  })
+})

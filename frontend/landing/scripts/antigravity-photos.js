@@ -17,7 +17,7 @@ async function download(name, url) {
   try {
     console.log(`Downloading ${name} from ${url}...`)
     const response = await axios.get(url, { responseType: 'arraybuffer' })
-    await fs.writeFile(path.resolve('frontend/landing/public/photos', `${name}.jpg`), response.data)
+    await fs.writeFile(path.resolve('public/photos', `${name}.jpg`), response.data)
     console.log(`✅ Saved ${name}.jpg`)
   } catch (err) {
     console.error(`❌ Failed to download ${name}: ${err.message}`)
@@ -26,8 +26,8 @@ async function download(name, url) {
 
 (async () => {
   try {
-    // Ensure directory exists in frontend/landing/public/photos
-    await fs.mkdir('frontend/landing/public/photos', { recursive: true })
+    // Ensure directory exists in public/photos
+    await fs.mkdir('public/photos', { recursive: true })
     
     for (const img of SOURCES) {
       await download(img.name, img.url)

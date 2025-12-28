@@ -1,0 +1,1 @@
+import{j as e}from"./index-7EGqpnN5.js";import"./vendor-wGySg1uH.js";function s(){return e.jsxs("footer",{className:"bg-black text-gray-400 text-center py-6",children:["© ",new Date().getFullYear()," Limousines – All rights reserved"]})}export{s as default};

@@ -1,0 +1,54 @@
+# Backend Environment Variables for Render
+# Copy these to Render: Environment tab
+
+# Database
+MONGO_URI=mongodb+srv://user:pass@cluster0.example.mongodb.net/limousines
+REDIS_URL=redis://user:pass@host:port
+
+# JWT Secrets (IMPORTANT: Must match frontend VITE_JWT_SECRET)
+JWT_SECRET=LiMo_2025_SuperSecure_JWT_Secret_Key_64_Characters_Long_Rotate
+JWT_REFRESH_SECRET=LiMo_2025_Refresh_Token_Secret_Key_64_Characters_Long_Rotate
+
+# Server
+PORT=5000
+NODE_ENV=production
+
+# Payment Gateways
+MP_ACCESS_TOKEN=APP_USR-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+PAYPAL_HOSTED_BUTTON_ID=YOUR_BUTTON_ID
+PP_CLIENT=placeholder_paypal_client
+PP_SECRET=placeholder_paypal_secret
+
+# Frontend URL (will be updated after Netlify deployment)
+FRONTEND_URL=https://limousines-app.netlify.app
+
+# Clerk Authentication
+CLERK_SECRET_KEY=sk_PLACEHOLDER_SECRET_KEY
+CLERK_PUBLISHABLE_KEY=pk_PLACEHOLDER_PUBLISHABLE_KEY
+
+# AI APIs
+GOOGLE_AI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+HUGGING_FACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+KIMI2_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Cloud Services
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=eyJh...
+SUPABASE_SERVICE_ROLE_KEY=eyJh...
+
+# Other APIs
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+REPLICATE_API_TOKEN=r8_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+SEGMIND_API_KEY=SG_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CRON_SECRET=26a9bf9077034b3c96c30aaf2680f527
+
+# Node Version
+NODE_VERSION=20
