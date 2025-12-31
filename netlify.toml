@@ -1,7 +1,12 @@
 [build]
-  base = "frontend/landing"
+  base = "."
   publish = "dist"
-  command = "npm run build"
+  command = "npm run build:landing && npm run build:app && mkdir -p dist/app && cp -r frontend/landing/dist/* dist/ && cp -r frontend/app/dist/* dist/app/"
+
+[[redirects]]
+  from = "/app/*"
+  to = "/app/index.html"
+  status = 200
 
 [[redirects]]
   from = "/*"

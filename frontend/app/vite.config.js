@@ -4,6 +4,7 @@ import compression from 'vite-plugin-compression'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: '/app/',
   plugins: [
     react(),
     compression({ algorithm: 'brotliCompress', ext: '.br' }),
