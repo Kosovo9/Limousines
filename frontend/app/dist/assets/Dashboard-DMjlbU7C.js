@@ -1,1 +1,0 @@
-import{j as s,N as t}from"./vendor-CdqvSFFa.js";import{u as a}from"./useAuth-Cdlyv25G.js";function i(){const{user:e}=a();return e?s.jsxs("div",{className:"p-6 text-white",children:[s.jsx("h1",{className:"text-3xl font-bold mb-4",children:"Dashboard"}),s.jsxs("p",{children:["Welcome, ",e.email]})]}):s.jsx(t,{to:"/login"})}export{i as default};

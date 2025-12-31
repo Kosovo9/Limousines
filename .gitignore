@@ -16,3 +16,8 @@ node_modules
 
 # Local Netlify folder
 .netlify
+
+# Build artifacts
+dist/
+.agent/
+Limousines/
