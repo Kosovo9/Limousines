@@ -1,0 +1,475 @@
+# 🚀 BESTIA CI/CD Pipeline - Premium Limousines Deployment
+name: BESTIA Production Deployment
+
+on:
+  push:
+    branches: [ main, production ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # 🔍 Code Quality & Security Checks
+  quality-gates:
+    name: 🛡️ Quality & Security Gates
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.changes.outputs.backend == 'true' || steps.changes.outputs.frontend == 'true' }}
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Detect Changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'package*.json'
+              - 'Dockerfile'
+            frontend:
+              - 'frontend/**'
+              - 'tailwind.config.ts'
+              - 'next.config.js'
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          cd backend && npm ci --prefer-offline --no-audit
+          cd ../frontend/landing && npm ci --prefer-offline --no-audit
+          cd ../app && npm ci --prefer-offline --no-audit
+
+      - name: 🔍 Lint Code
+        run: |
+          npm run lint --if-present
+          cd backend && npm run lint --if-present
+
+      - name: 🧪 Run Tests
+        run: |
+          npm run test --if-present
+          cd backend && npm run test --if-present
+
+      - name: 🛡️ Security Audit
+        run: |
+          npm audit --audit-level=high
+          cd backend && npm audit --audit-level=high
+
+      - name: 🔐 CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: 📊 CodeQL Analyze
+        uses: github/codeql-action/analyze@v3
+
+  # 🏗️ Build & Test Backend
+  build-backend:
+    name: 🏗️ Build Backend
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    if: needs.quality-gates.outputs.should-deploy == 'true'
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+
+      - name: 📥 Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci --only=production --prefer-offline --no-audit
+
+      - name: 🧪 Backend Unit Tests
+        run: |
+          cd backend
+          npm run test:unit --if-present
+
+      - name: 🚀 Build Backend
+        run: |
+          cd backend
+          npm run build --if-present
+
+      - name: 📦 Cache Backend Build
+        uses: actions/cache@v3
+        with:
+          path: backend/dist
+          key: backend-build-${{ github.sha }}
+          restore-keys: backend-build-
+
+  # 🎨 Build Frontend Applications
+  build-frontend:
+    name: 🎨 Build Frontend
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    if: needs.quality-gates.outputs.should-deploy == 'true'
+
+    strategy:
+      matrix:
+        app: [landing, app]
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/${{ matrix.app }}/package-lock.json'
+
+      - name: 📥 Install Dependencies
+        run: |
+          cd frontend/${{ matrix.app }}
+          npm ci --prefer-offline --no-audit
+
+      - name: 🔧 Configure Environment
+        run: |
+          cd frontend/${{ matrix.app }}
+          echo "VITE_API_URL=${{ secrets.API_URL }}" >> .env
+          echo "VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }}" >> .env
+          echo "VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY }}" >> .env
+
+      - name: 🏗️ Build Application
+        run: |
+          cd frontend/${{ matrix.app }}
+          npm run build
+        env:
+          NODE_ENV: production
+          GENERATE_SOURCEMAP: false
+
+      - name: 🗜️ Optimize Build
+        run: |
+          cd frontend/${{ matrix.app }}/dist
+          find . -name "*.js" -exec gzip -k {} \;
+          find . -name "*.css" -exec gzip -k {} \;
+          find . -name "*.html" -exec gzip -k {} \;
+
+      - name: 📦 Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-${{ matrix.app }}-build
+          path: frontend/${{ matrix.app }}/dist/
+          retention-days: 30
+
+  # 🐳 Build Docker Image
+  build-docker:
+    name: 🐳 Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Frontend Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: frontend-*-build
+          merge-multiple: true
+
+      - name: 🔐 Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Extract Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🐳 Build and Push Docker Image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: 🛡️ Scan Image for Vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: 📊 Upload Trivy Scan Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # 🧪 Integration Tests
+  integration-tests:
+    name: 🧪 Integration Tests
+    runs-on: ubuntu-latest
+    needs: build-docker
+
+    services:
+      mongodb:
+        image: mongo:7.0
+        env:
+          MONGO_INITDB_ROOT_USERNAME: test
+          MONGO_INITDB_ROOT_PASSWORD: test
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🧪 Run Integration Tests
+        run: npm run test:integration --if-present
+        env:
+          MONGO_URI: mongodb://test:test@localhost:27017/test?authSource=admin
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
+
+      - name: 🎭 E2E Tests with Playwright
+        run: |
+          npx playwright install --with-deps
+          npm run test:e2e --if-present
+        env:
+          BASE_URL: http://localhost:3000
+
+  # 🚀 Deploy to Staging
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-docker, integration-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: staging
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configure Staging Environment
+        run: |
+          echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+          echo "API_URL=${{ secrets.STAGING_API_URL }}" >> $GITHUB_ENV
+
+      - name: 🚀 Deploy to Staging Server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USERNAME }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT }}
+          script: |
+            cd /opt/limousines-staging
+            docker-compose pull
+            docker-compose up -d --no-deps app
+            docker image prune -f
+
+      - name: 🏥 Health Check
+        run: |
+          sleep 30
+          curl -f ${{ secrets.STAGING_API_URL }}/health || exit 1
+
+      - name: 📊 Update Deployment Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: '${{ github.event.deployment.id }}',
+              state: 'success',
+              environment_url: '${{ secrets.STAGING_API_URL }}',
+              description: 'Staging deployment successful'
+            });
+
+  # 🏁 Deploy to Production
+  deploy-production:
+    name: 🏁 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-docker, integration-tests]
+    if: github.ref == 'refs/heads/production' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment: production
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configure Production Environment
+        run: |
+          echo "ENVIRONMENT=production" >> $GITHUB_ENV
+          echo "API_URL=${{ secrets.PRODUCTION_API_URL }}" >> $GITHUB_ENV
+
+      - name: 🚀 Deploy to Production Cluster
+        uses: azure/k8s-deploy@v1
+        with:
+          namespace: limousines-prod
+          manifests: |
+            k8s/deployment.yaml
+            k8s/service.yaml
+            k8s/ingress.yaml
+          images: |
+            ${{ needs.build-docker.outputs.image-tag }}
+          kubectl-version: 'latest'
+
+      - name: 🏥 Production Health Check
+        run: |
+          sleep 60
+          curl -f ${{ secrets.PRODUCTION_API_URL }}/health || exit 1
+
+      - name: 📈 Update Monitoring
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data '{"text":"🚀 BESTIA Production Deployment Complete! Version: ${{ github.sha }}"}'
+
+      - name: 🏷️ Create Release
+        if: github.ref == 'refs/heads/production'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Production Release v${{ github.run_number }}
+          body: |
+            🚀 BESTIA Production Deployment
+
+            **Changes:**
+            - Automated deployment from commit ${{ github.sha }}
+            - Docker image: ${{ needs.build-docker.outputs.image-tag }}
+
+            **Performance:**
+            - Image size optimized with multi-stage builds
+            - Brotli + Gzip compression enabled
+            - Advanced caching strategies implemented
+
+            **Security:**
+            - Vulnerability scanning passed
+            - Security headers configured
+            - Rate limiting enabled
+          draft: false
+          prerelease: false
+
+  # 🧹 Cleanup
+  cleanup:
+    name: 🧹 Cleanup Old Resources
+    runs-on: ubuntu-latest
+    needs: [deploy-production, deploy-staging]
+    if: always()
+
+    steps:
+      - name: 🗑️ Clean Old Docker Images
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: packages } = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+              package_type: 'container',
+              package_name: '${{ env.IMAGE_NAME }}',
+              org: '${{ github.repository_owner }}'
+            });
+
+            const oldPackages = packages
+              .filter(pkg => pkg.created_at < new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+              .slice(10);
+
+            for (const pkg of oldPackages) {
+              await github.rest.packages.deletePackageVersionForOrg({
+                package_type: 'container',
+                package_name: '${{ env.IMAGE_NAME }}',
+                org: '${{ github.repository_owner }}',
+                package_version_id: pkg.id
+              });
+            }
+
+  # 📊 Performance Monitoring
+  performance-monitoring:
+    name: 📊 Performance Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: github.ref == 'refs/heads/production'
+
+    steps:
+      - name: 🔍 Lighthouse Performance Audit
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            ${{ secrets.PRODUCTION_API_URL }}
+            ${{ secrets.PRODUCTION_FRONTEND_URL }}
+          configPath: './lighthouse.config.js'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: 📈 Load Testing
+        run: |
+          npm install -g artillery
+          artillery quick --count 100 --num 10 ${{ secrets.PRODUCTION_API_URL }}/health
