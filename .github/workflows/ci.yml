@@ -9,6 +9,21 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npm test --if-present
+      
+      - name: Install Root Dependencies
+        run: npm ci
+
+      - name: Install Backend Dependencies
+        run: cd backend && npm ci
+
+      - name: Install Frontend App Dependencies
+        run: cd frontend/app && npm ci
+
+      - name: Install Frontend Landing Dependencies
+        run: cd frontend/landing && npm ci
+
+      - name: Build All
+        run: npm run build
+
+      - name: Run Tests
+        run: npm test --if-present
