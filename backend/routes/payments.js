@@ -1,5 +1,4 @@
 import express from 'express'
-import fetch from 'node-fetch'
 import jwt from 'jose'
 
 const router = express.Router()

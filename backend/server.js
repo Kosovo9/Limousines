@@ -9,6 +9,7 @@ import path from "node:path";
 import sharp from "sharp";
 import cluster from "node:cluster";
 import os from "node:os";
+import zlib from "node:zlib";
 import authRoutes from "./routes/auth.js";
 import limoRoutes from "./routes/limousines.js";
 import bookingRoutes from "./routes/bookings.js";
@@ -106,8 +107,7 @@ if (cluster.isPrimary && process.env.NODE_ENV === "production") {
       brotli: {
         quality: 11,
         params: {
-          [require("zlib").constants.BROTLI_PARAM_MODE]:
-            require("zlib").constants.BROTLI_MODE_TEXT,
+          [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
         },
       },
       filter: (req, res) => {
